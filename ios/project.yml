@@ -1,5 +1,4 @@
 name: EchoMusic
-
 options:
   bundleIdPrefix: com.echomusic
   deploymentTarget:
@@ -10,49 +9,6 @@ targets:
   EchoMusic:
     type: application
     platform: iOS
-    # TEMPORARY diagnostics probe, removed once the iOS build is green again.
-    preBuildScripts:
-      - name: Diagnostics
-        basedOnDependencyAnalysis: false
-        showEnvVars: false
-        scriptContent: |
-          set -u
-
-          # TEMPORARY CI diagnostics probe (ios/project.yml -> preBuildScripts). Re-runs the
-          # build in isolation and reports the shape of the failure using step duration, in
-          # 10-second units: sleep = 10 * (crash + 4*sandbox + 16*nonzero + 64*exitfailure).
-          # Delete along with that block.
-
-          [ -n "${ECHO_DIAG_NESTED:-}" ] && exit 0
-
-          W="$(mktemp -d "${TMPDIR:-/tmp}/diag.XXXXXX")"
-
-          ECHO_DIAG_NESTED=1 xcodebuild \
-            -project "$SRCROOT/EchoMusic.xcodeproj" \
-            -scheme EchoMusic \
-            -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath "$W/dd" \
-            -disableIndexing \
-            CODE_SIGNING_ALLOWED=NO \
-            build >"$W/build.log" 2>&1
-          status=$?
-
-          n() { c="$(grep -cE "$1" "$W/build.log" 2>/dev/null || true)"; [ -z "$c" ] && c=0; [ "$c" -gt 3 ] && c=3; echo "$c"; }
-
-          CRASH="$(n 'signal [0-9]+|Assertion `|Stack dump|UNREACHABLE|Crashed')":0
-          SB="$(n 'sandbox|operation not permitted|permission denied')"
-          NZ="$(n 'nonzero exit code')"
-          EX=0
-          [ "$status" -ne 0 ] && EX=1
-
-          # 4th digit: the inner build's exit code tens digit (65 -> 6, 0 -> 0, 74 -> 7 ...)
-          d1=$((status / 10 % 10))
-          d1=$((d1 > 3 ? 3 : d1))
-
-          sleep $((10 * (EX + 4 * SB + 16 * NZ + 64 * d1)))
-          exit 0
-
     sources:
       - EchoMusic
     settings:
@@ -67,6 +23,5 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         ENABLE_PREVIEWS: YES
-        ENABLE_USER_SCRIPT_SANDBOXING: NO
     scheme:
       gatherCoverageData: false
