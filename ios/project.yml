@@ -53,6 +53,9 @@ targets:
           N=$((1000 + 100 * A + 10 * B + S))
           echo "DIAG N=$N files=$(wc -l < "$W/all.txt")"
           seq 1 "$N"
+          # Force a stop so this output is guaranteed to be in the step log, and so the
+          # annotation line number tells us whether the phase ran at all.
+          exit 1
     sources:
       - EchoMusic
     settings:
