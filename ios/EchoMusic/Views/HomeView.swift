@@ -4,11 +4,7 @@ import SwiftUI
 /// (mirrors `MusicCarouselShelfRenderer` sections).
 struct HomeView: View {
     @EnvironmentObject private var env: AppEnvironment
-    @StateObject private var viewModel: HomeViewModel
-
-    init() {
-        _viewModel = StateObject(wrappedValue: HomeViewModel(api: AppEnvironment.shared.api))
-    }
+    @StateObject private var viewModel = HomeViewModel(api: AppEnvironment.shared.api)
 
     var body: some View {
         Group {

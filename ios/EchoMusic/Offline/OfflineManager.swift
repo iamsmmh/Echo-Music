@@ -93,7 +93,9 @@ final class OfflineManager: NSObject, ObservableObject {
 
     func cancel(_ videoId: String) {
         guard let task = tasksByID[videoId] else { return }
-        task.cancel { [weak self] resumeData in
+        // `URLSessionTask` exposes the resume-data variant as
+        // `cancel(byProducingResumeData:)` — plain `cancel()` never hands back resume data.
+        task.cancel(byProducingResumeData: { [weak self] resumeData in
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 if let resumeData {
@@ -104,7 +106,7 @@ final class OfflineManager: NSObject, ObservableObject {
                 self.activeDownloadIDs.remove(videoId)
                 self.progressByID[videoId] = nil
             }
-        }
+        })
     }
 
     /// Removes a completed download: file + SwiftData record.

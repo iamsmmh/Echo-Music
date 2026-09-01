@@ -6,11 +6,7 @@ import SwiftUI
 struct LyricsView: View {
     @EnvironmentObject private var env: AppEnvironment
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel: LyricsViewModel
-
-    init() {
-        _viewModel = StateObject(wrappedValue: LyricsViewModel(api: AppEnvironment.shared.api))
-    }
+    @StateObject private var viewModel = LyricsViewModel(api: AppEnvironment.shared.api)
 
     var body: some View {
         NavigationStack {
