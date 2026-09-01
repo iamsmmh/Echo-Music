@@ -1,4 +1,5 @@
 name: EchoMusic
+
 options:
   bundleIdPrefix: com.echomusic
   deploymentTarget:
@@ -9,17 +10,51 @@ targets:
   EchoMusic:
     type: application
     platform: iOS
-    sources:
-      - EchoMusic
-    # TEMPORARY (diagnostics only): type-checks the sources and publishes compiler
-    # errors as CI annotations. Remove together with
-    # scripts/ios-diagnose-typecheck.sh.
+    # TEMPORARY build-log oracle, delete this block: the probe prints N lines where
+    # N = 1000 + 100*errors(arm64) + 10*errors(x86_64) + slowest-expression bucket,
+    # which is readable from the line number of the "Process completed" annotation.
     preBuildScripts:
-      - name: Diagnostics (typecheck)
+      - name: Diagnostics
         basedOnDependencyAnalysis: false
         showEnvVars: false
         scriptContent: |
-          bash "$SRCROOT/../scripts/ios-diagnose-typecheck.sh" || true
+          set -u
+          SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          W="$(mktemp -d "${TMPDIR:-/tmp}/diag.XXXXXX")"
+          find "$SRCROOT/EchoMusic" -name '*.swift' | sort > "$W/all.txt"
+          count_errors() {
+            n="$(grep -Ec ': error:|due to signal|PLEASE SUBMIT|error: ' "$1" 2>/dev/null || true)"
+            [ -z "$n" ] && n=0
+            if [ "$n" -gt 9 ]; then n=9; fi
+            echo "$n"
+          }
+          xargs xcrun swiftc -emit-module -emit-module-path "$W/a.swiftmodule" \
+            -sdk "$SDK" -target arm64-apple-ios17.0-simulator \
+            -module-name Echo_Music -parse-as-library -swift-version 5 \
+            < "$W/all.txt" > "$W/arm64.log" 2>&1
+          xargs xcrun swiftc -emit-module -emit-module-path "$W/x.swiftmodule" \
+            -sdk "$SDK" -target x86_64-apple-ios17.0-simulator \
+            -module-name Echo_Music -parse-as-library -swift-version 5 \
+            < "$W/all.txt" > "$W/x86.log" 2>&1
+          xargs xcrun swiftc -typecheck -sdk "$SDK" \
+            -target arm64-apple-ios17.0-simulator -module-name Echo_Music \
+            -parse-as-library -swift-version 5 \
+            -Xfrontend -debug-time-expression-type-checking \
+            < "$W/all.txt" > "$W/timed.log" 2>&1
+          A="$(count_errors "$W/arm64.log")"
+          B="$(count_errors "$W/x86.log")"
+          M="$(awk '{ for (i = 1; i <= NF; i++) if ($i == "ms") { t = $(i - 1) + 0; if (t > 0) print t; break } }' \
+            "$W/timed.log" | sort -rn | head -1 | cut -d. -f1)"
+          [ -z "$M" ] && M=0
+          S=0
+          if [ "$M" -gt 3000 ]; then S=8; elif [ "$M" -gt 1500 ]; then S=7; elif [ "$M" -gt 800 ]; then S=6
+          elif [ "$M" -gt 400 ]; then S=5; elif [ "$M" -gt 200 ]; then S=4; elif [ "$M" -gt 100 ]; then S=3
+          elif [ "$M" -gt 50 ]; then S=2; elif [ "$M" -gt 10 ]; then S=1; fi
+          N=$((1000 + 100 * A + 10 * B + S))
+          echo "DIAG N=$N files=$(wc -l < "$W/all.txt")"
+          seq 1 "$N"
+    sources:
+      - EchoMusic
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.echomusic.app
@@ -32,7 +67,6 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         ENABLE_PREVIEWS: YES
-        # TEMPORARY (diagnostics): let the probe script phase write its logs.
         ENABLE_USER_SCRIPT_SANDBOXING: NO
     scheme:
       gatherCoverageData: false
