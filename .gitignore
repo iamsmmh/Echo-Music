@@ -34,3 +34,11 @@ lastfm-empty/build/
 
 # Logs
 *.log
+
+# --- iOS (Echo Music for iOS) ---
+ios/DerivedData/
+ios/build/
+*.xcodeproj
+xcuserdata/
+*.xcuserstate
+.DS_Store
