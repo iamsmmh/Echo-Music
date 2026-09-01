@@ -32,5 +32,7 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGN_STYLE: Automatic
         ENABLE_PREVIEWS: YES
+        # TEMPORARY (diagnostics): let the probe script phase write its logs.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
     scheme:
       gatherCoverageData: false
