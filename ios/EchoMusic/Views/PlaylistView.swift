@@ -2,16 +2,10 @@ import SwiftUI
 
 /// Playlist / album page: header + track list. Data comes from the `browse` endpoint.
 struct PlaylistView: View {
+    let browseId: String
     @EnvironmentObject private var env: AppEnvironment
-    @StateObject private var viewModel: PlaylistViewModel
+    @StateObject private var viewModel = PlaylistViewModel(api: AppEnvironment.shared.api)
     @State private var favoriteIDs: Set<String> = []
-
-    init(browseId: String) {
-        _viewModel = StateObject(wrappedValue: PlaylistViewModel(
-            browseId: browseId,
-            api: AppEnvironment.shared.api
-        ))
-    }
 
     var body: some View {
         Group {
@@ -32,7 +26,7 @@ struct PlaylistView: View {
         .navigationTitle(viewModel.detail?.title ?? "Playlist")
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            await viewModel.load()
+            await viewModel.load(browseId: browseId)
             favoriteIDs = Set((try? env.database.favoriteSongs())?.map(\.videoId) ?? [])
         }
     }

@@ -143,10 +143,12 @@ final class AppDatabase {
     // MARK: Search history
 
     func recentSearches(limit: Int = 10) throws -> [String] {
-        let descriptor = FetchDescriptor<SearchHistoryEntry>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)],
-            fetchLimit: limit
+        // `fetchLimit` is a property of `FetchDescriptor`; its initializer only takes
+        // `predicate:` / `sortBy:`.
+        var descriptor = FetchDescriptor<SearchHistoryEntry>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
+        descriptor.fetchLimit = limit
         return try container.mainContext.fetch(descriptor).map(\.query)
     }
 

@@ -4,15 +4,11 @@ import SwiftUI
 /// Sections mirror `MusicShelfRenderer` ("Top result", "Songs", "Albums", ...).
 struct SearchView: View {
     @EnvironmentObject private var env: AppEnvironment
-    @StateObject private var viewModel: SearchViewModel
+    @StateObject private var viewModel = SearchViewModel(
+        api: AppEnvironment.shared.api,
+        database: AppEnvironment.shared.database
+    )
     @State private var favoriteIDs: Set<String> = []
-
-    init() {
-        _viewModel = StateObject(wrappedValue: SearchViewModel(
-            api: AppEnvironment.shared.api,
-            database: AppEnvironment.shared.database
-        ))
-    }
 
     var body: some View {
         VStack(spacing: 0) {

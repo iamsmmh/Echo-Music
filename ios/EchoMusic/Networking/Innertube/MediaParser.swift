@@ -93,6 +93,7 @@ enum MediaParser {
             ?? header?.musicDetailHeaderRenderer?.title?.text
             ?? header?.musicHeaderRenderer?.title?.text
             ?? contents.compactMap(\.musicResponsiveHeaderRenderer).first?.title?.text
+            ?? ""
 
         let subtitle =
             header?.musicEditablePlaylistDetailHeaderRenderer?.header?.musicDetailHeaderRenderer?.subtitle?.text
@@ -194,14 +195,15 @@ enum MediaParser {
             || renderer.navigationEndpoint?.watchEndpoint != nil
 
         if isSong {
-            return song(from: renderer).map(SearchItem.song)
+            guard let song = song(from: renderer) else { return nil }
+            return .song(song)
         }
 
         guard let browseEndpoint = renderer.navigationEndpoint?.browseEndpoint else {
             return nil
         }
 
-        let secondaryText = renderer.flexColumns[safe: 1]?
+        let secondaryText = renderer.flexColumns?[safe: 1]?
             .musicResponsiveListItemFlexColumnRenderer?.text?.text ?? ""
         let thumbnail = renderer.thumbnail?.url ?? ""
 
@@ -293,7 +295,7 @@ enum MediaParser {
         }
 
         // Secondary line: "Artist • Album • 3:45"
-        guard let secondaryRuns = renderer.flexColumns[safe: 1]?
+        guard let secondaryRuns = renderer.flexColumns?[safe: 1]?
             .musicResponsiveListItemFlexColumnRenderer?.text?.runs else {
             return nil
         }

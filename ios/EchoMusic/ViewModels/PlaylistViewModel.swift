@@ -7,15 +7,15 @@ final class PlaylistViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    let browseId: String
     private let api: InnertubeAPI
 
-    init(browseId: String, api: InnertubeAPI) {
-        self.browseId = browseId
+    init(api: InnertubeAPI) {
         self.api = api
     }
 
-    func load() async {
+    /// Fetches the playlist/album page. Re-entry is a no-op while `detail` is already
+    /// populated, so the tracks the user is scrolling through don't get refetched.
+    func load(browseId: String) async {
         guard detail == nil else { return }
         isLoading = true
         defer { isLoading = false }
