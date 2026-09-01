@@ -4,6 +4,7 @@ import SwiftUI
 struct PlaylistView: View {
     @EnvironmentObject private var env: AppEnvironment
     @StateObject private var viewModel: PlaylistViewModel
+    @State private var favoriteIDs: Set<String> = []
 
     init(browseId: String) {
         _viewModel = StateObject(wrappedValue: PlaylistViewModel(
@@ -30,7 +31,10 @@ struct PlaylistView: View {
         }
         .navigationTitle(viewModel.detail?.title ?? "Playlist")
         .navigationBarTitleDisplayMode(.inline)
-        .task { await viewModel.load() }
+        .task {
+            await viewModel.load()
+            favoriteIDs = Set((try? env.database.favoriteSongs())?.map(\.videoId) ?? [])
+        }
     }
 
     private func trackList(_ detail: PlaylistDetail) -> some View {
@@ -40,9 +44,15 @@ struct PlaylistView: View {
             }
 
             ForEach(Array(detail.songs.enumerated()), id: \.element.id) { index, song in
-                SongRowView(song: song) {
-                    env.player.play(detail.songs, startingAt: index, playlistId: detail.playlistId)
-                }
+                SongRowView(
+                    song: song,
+                    onTap: {
+                        env.player.play(detail.songs, startingAt: index, playlistId: detail.playlistId)
+                    },
+                    offline: env.offline,
+                    isFavorite: favoriteIDs.contains(song.id),
+                    onToggleFavorite: { toggleFavorite($0) }
+                )
             }
 
             if detail.continuation != nil {
@@ -54,6 +64,15 @@ struct PlaylistView: View {
             }
         }
         .listStyle(.plain)
+    }
+
+    private func toggleFavorite(_ song: Song) {
+        try? env.database.toggleFavorite(song)
+        if favoriteIDs.contains(song.id) {
+            favoriteIDs.remove(song.id)
+        } else {
+            favoriteIDs.insert(song.id)
+        }
     }
 }
 

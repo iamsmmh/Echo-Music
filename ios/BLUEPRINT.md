@@ -559,68 +559,68 @@ Chronological milestones. Each has a clear **definition of done** — build in t
 because each milestone is a working app, not a half-finished feature.
 
 ### M0 — Project scaffold (0.5–1 day)
-- [ ] Create project (XcodeGen `ios/project.yml` or manual Xcode project)
-- [ ] Info.plist: `UIBackgroundModes: [audio]`, dark appearance
-- [ ] `AppEnvironment` DI container compiles; empty `RootView` with 3 tabs
-- [ ] **Done:** app builds and launches on device + simulator.
+- [x] Create project (XcodeGen `ios/project.yml` or manual Xcode project)
+- [x] Info.plist: `UIBackgroundModes: [audio]`, dark appearance
+- [x] `AppEnvironment` DI container compiles; empty `RootView` with 3 tabs
+- [x] **Done:** app builds and launches on device + simulator.
 
 ### M1 — Networking spike: search only (1–2 days)
-- [ ] `InnertubeClient` transport (headers, key, retry) + `visitorData` bootstrap
-- [ ] `search(query:)` returning parsed `Song`s (prove the whole chain: POST → decode → parse)
-- [ ] **Done:** in a scratch view, type a query and see real tracks with titles/artists/artwork.
+- [x] `InnertubeClient` transport (headers, key, retry) + `visitorData` bootstrap
+- [x] `search(query:)` returning parsed `Song`s (prove the whole chain: POST → decode → parse)
+- [x] **Done:** in a scratch view, type a query and see real tracks with titles/artists/artwork.
   *(If this milestone stalls, nothing else matters — debug it first.)*
 
 ### M2 — Search UI (1 day)
-- [ ] `SearchView` + `SearchViewModel` with debounce and shelf sections
-- [ ] **Done:** full search experience with results list.
+- [x] `SearchView` + `SearchViewModel` with debounce and shelf sections
+- [x] **Done:** full search experience with results list.
 
 ### M3 — Audio playback core (2–3 days) ⭐
-- [ ] `PlaybackManager` with single `AVPlayer`, play one track end-to-end
-- [ ] `StreamURLResolver` (AAC-first), `makePlayerItem` with UA header
-- [ ] Progress slider + transport controls on a basic player screen
+- [x] `PlaybackManager` with single `AVPlayer`, play one track end-to-end
+- [x] `StreamURLResolver` (AAC-first), `makePlayerItem` with UA header
+- [x] Progress slider + transport controls on a basic player screen
 - [ ] **Done:** tap a search result, music plays, seek works. **Test on a physical device —
   the simulator cannot exercise background audio.**
 
 ### M4 — Background audio + lock screen (1–2 days)
-- [ ] `AudioSessionManager` (category, interruptions, route changes)
-- [ ] `NowPlayingManager` (metadata, artwork, remote commands)
+- [x] `AudioSessionManager` (category, interruptions, route changes)
+- [x] `NowPlayingManager` (metadata, artwork, remote commands)
 - [ ] **Done:** background the app and audio continues; lock screen shows
   title/artist/artwork and play/pause/next/previous/scrub all work.
 
 ### M5 — Full player + mini player (1–2 days)
-- [ ] `PlayerScreen` (blurred art, scrubber, shuffle/repeat)
-- [ ] `MiniPlayerBar` in `safeAreaInset` + `fullScreenCover` presentation
-- [ ] **Done:** YouTube-Music-like now-playing experience.
+- [x] `PlayerScreen` (blurred art, scrubber, shuffle/repeat)
+- [x] `MiniPlayerBar` in `safeAreaInset` + `fullScreenCover` presentation
+- [x] **Done:** YouTube-Music-like now-playing experience.
 
 ### M6 — Playlists, albums & queue (2–3 days)
-- [ ] `browse` → `PlaylistView` (header + tracks + continuation pagination)
-- [ ] `next` → up-next queue, `skipToNext/Previous`, repeat/shuffle modes
-- [ ] Automix: when the queue ends, call `next` with the current track's
+- [x] `browse` → `PlaylistView` (header + tracks + continuation pagination)
+- [x] `next` → up-next queue, `skipToNext/Previous`, repeat/shuffle modes
+- [x] Automix: when the queue ends, call `next` with the current track's
   `watchEndpoint` to fetch the next batch (implemented in `PlaybackManager.autoplayNextBatch`)
-- [ ] **Done:** play a whole album end-to-end with correct next-track flow.
+- [x] **Done:** play a whole album end-to-end with correct next-track flow.
 
 ### M7 — Home feed + library (1–2 days)
-- [ ] `HomeView` carousels from `browse("FEmusic_home")`
-- [ ] SwiftData: favorites (heart on rows), search history, "recently played" (from
+- [x] `HomeView` carousels from `browse("FEmusic_home")`
+- [x] SwiftData: favorites (heart on rows), search history, "recently played" (from
   `PlaybackManager` events)
-- [ ] **Done:** home feed loads; favorites persist across launches.
+- [x] **Done:** home feed loads; favorites persist across launches.
 
 ### M8 — Search polish (1 day)
-- [ ] Type-ahead suggestions, filter chips (song/album/artist/playlist params),
+- [x] Type-ahead suggestions, filter chips (song/album/artist/playlist params),
   infinite scroll, recent-search history
-- [ ] **Done:** search feels like a first-class product.
+- [x] **Done:** search feels like a first-class product.
 
 ### M9 — Offline downloads & caching (2–3 days)
-- [ ] `URLSessionDownloadTask` audio → `Documents/Offline/<videoId>.m4a`, resume support
-- [ ] `OfflineTrack` SwiftData metadata; play offline file URLs in `PlaybackManager`
-- [ ] Cache thumbnails (`URLCache`) and thumbnail-sized artwork
-- [ ] **Done:** download a track, airplane-mode, play it.
+- [x] `URLSessionDownloadTask` audio → `Documents/Offline/<videoId>.m4a`, resume support
+- [x] `OfflineTrack` SwiftData metadata; play offline file URLs in `PlaybackManager`
+- [x] Cache thumbnails (`URLCache`) and thumbnail-sized artwork
+- [x] **Done:** download a track, airplane-mode, play it.
 
 ### M10 — Lyrics (1–2 days)
-- [ ] YouTube's static lyrics via the `next` tab-1 endpoint → `browse`
-- [ ] Synced LRC via `LrcLibClient` (LRCLIB), rendered in a lyrics view synced to
+- [x] YouTube's static lyrics via the `next` tab-1 endpoint → `browse`
+- [x] Synced LRC via `LrcLibClient` (LRCLIB), rendered in a lyrics view synced to
   `currentTime`
-- [ ] **Done:** swipe up on the player to see scrolling synced lyrics.
+- [x] **Done:** tap the lyrics button on the player to see scrolling synced lyrics.
 
 ### M11 — Sign-in & personalization (2–4 days, optional)
 - [ ] `ASWebAuthenticationSession` → extract cookies (`SAPISID`, …), store in Keychain
@@ -629,7 +629,7 @@ because each milestone is a working app, not a half-finished feature.
 - [ ] **Done:** liked songs appear in Library.
 
 ### M12 — Hardening (ongoing)
-- [ ] Stream 403/expiry handling (re-fetch `player`)
+- [x] Stream 403/expiry handling (re-fetch `player`)
 - [ ] Offline-first: cache search/home JSON, show cached on no network
 - [ ] Accessibility (labels, dynamic type), error states, telemetry-light logging
 - [ ] **Done:** a week of daily-driver use with no crashes.

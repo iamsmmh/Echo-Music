@@ -20,6 +20,8 @@
 
 Echo Music delivers a seamless, premium listening experience by leveraging YouTube Music's vast library — without the ads. It adds powerful extras including offline downloads, real-time synchronized lyrics, and environment-aware music recognition.
 
+There is also a **native iOS client** (Swift/SwiftUI) in [`ios/`](ios/README.md) with its own blueprint and build instructions.
+
 ---
 
 ## Table of Contents
