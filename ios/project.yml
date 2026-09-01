@@ -11,6 +11,15 @@ targets:
     platform: iOS
     sources:
       - EchoMusic
+    # TEMPORARY (diagnostics only): type-checks the sources and publishes compiler
+    # errors as CI annotations. Remove together with
+    # scripts/ios-diagnose-typecheck.sh.
+    preBuildScripts:
+      - name: Diagnostics (typecheck)
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
+        scriptContent: |
+          bash "$SRCROOT/../scripts/ios-diagnose-typecheck.sh" || true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.echomusic.app
