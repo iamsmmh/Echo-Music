@@ -159,6 +159,30 @@ provider, etc.), the existing pattern is: **new Gradle module**, register it
 in `settings.gradle.kts`, add it as an `implementation(project(":name"))` in
 `app/build.gradle.kts`, wire it up via Hilt in `di/`.
 
+## iOS client (Swift/SwiftUI)
+
+`ios/` contains a native iOS client for the same YouTube Music catalog. It is a
+separate codebase from the Android app — no Kotlin/Gradle involvement. Read
+`ios/BLUEPRINT.md` (the design doc) and `ios/README.md` (milestone status)
+before touching it.
+
+- **Location / layout:** `ios/EchoMusic/` — `App/` (entry + DI + Info.plist),
+  `Core/` (extensions, LRC parser), `Networking/` (InnerTube client/models/parser,
+  LRCLIB), `Offline/` (download manager), `Playback/` (AVPlayer, audio session,
+  lock screen), `Storage/` (SwiftData), `ViewModels/`, `Views/`.
+- **Build:** XcodeGen — `cd ios && xcodegen generate`, then open
+  `EchoMusic.xcodeproj`.
+- **Conventions:** SwiftUI + MVVM. View models are `@MainActor` `ObservableObject`s;
+  views never call services directly. DI is a single `AppEnvironment` container
+  (`@EnvironmentObject`) — no DI framework. No third-party dependencies.
+  Playback state lives in `PlaybackManager` (also the playback view model).
+- **Playback rule (iOS-specific):** only AAC (`audio/mp4`, itag 139/140/141) is
+  playable via `AVPlayer`; Opus-in-WebM (249/250/251) is skipped by
+  `StreamURLResolver`. Streams are resolved via the VISIONOS → IOS → ANDROID_VR
+  client cascade, which returns direct URLs (no signature deciphering).
+- **Adding features:** follow the blueprint milestone checklist; keep the
+  `ios/README.md` milestone table in sync when a milestone lands.
+
 ## App module internal structure
 
 Path: `app/src/main/kotlin/com/music/echo/` (note: source dir is `kotlin/`,

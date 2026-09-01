@@ -173,4 +173,21 @@ final class AppDatabase {
         )
         return try container.mainContext.fetch(descriptor)
     }
+
+    func insert(_ track: OfflineTrack) throws {
+        container.mainContext.insert(track)
+        try container.mainContext.save()
+    }
+
+    func delete(_ track: OfflineTrack) throws {
+        container.mainContext.delete(track)
+        try container.mainContext.save()
+    }
+
+    func isOffline(_ videoId: String) -> Bool {
+        let descriptor = FetchDescriptor<OfflineTrack>(
+            predicate: #Predicate { $0.videoId == videoId }
+        )
+        return ((try? container.mainContext.fetchCount(descriptor)) ?? 0) > 0
+    }
 }

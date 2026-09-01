@@ -9,6 +9,8 @@ struct PlayerScreen: View {
 
     @State private var isScrubbing = false
     @State private var scrubTime: TimeInterval?
+    @State private var showQueue = false
+    @State private var showLyrics = false
 
     var body: some View {
         ZStack {
@@ -30,6 +32,12 @@ struct PlayerScreen: View {
         }
         .foregroundStyle(.white)
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showQueue) {
+            QueueView()
+        }
+        .sheet(isPresented: $showLyrics) {
+            LyricsView()
+        }
     }
 
     // MARK: - Sections
@@ -45,8 +53,12 @@ struct PlayerScreen: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.7))
             Spacer()
-            Button {} label: {
-                Image(systemName: "ellipsis")
+            Button { showLyrics = true } label: {
+                Image(systemName: "text.quote")
+                    .font(.title3)
+            }
+            Button { showQueue = true } label: {
+                Image(systemName: "list.bullet")
                     .font(.title3)
             }
         }
@@ -62,6 +74,13 @@ struct PlayerScreen: View {
             cornerRadius: 16
         )
         .shadow(color: .black.opacity(0.4), radius: 24, y: 8)
+        .overlay {
+            if env.player.isLoading {
+                ProgressView()
+                    .controlSize(.large)
+                    .tint(.white)
+            }
+        }
     }
 
     private var titleBlock: some View {

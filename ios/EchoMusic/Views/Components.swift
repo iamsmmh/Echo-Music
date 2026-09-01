@@ -94,6 +94,60 @@ struct SearchResultRow: View {
     }
 }
 
+// MARK: - Download button
+
+/// Renders a track's offline state and toggles its download:
+/// not downloaded (arrow), downloading (progress ring), downloaded (checkmark).
+/// Tapping the ring cancels the in-flight download; tapping the arrow starts one.
+struct DownloadButton: View {
+    @ObservedObject var offline: OfflineManager
+    let song: Song
+    var size: CGFloat = 20
+
+    var body: some View {
+        if offline.activeDownloadIDs.contains(song.id) {
+            ProgressView(value: offline.progressByID[song.id] ?? 0)
+                .progressViewStyle(.circular)
+                .frame(width: size, height: size)
+                .onTapGesture {
+                    offline.cancel(song.id)
+                }
+        } else if offline.isDownloaded(song.id) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: size))
+                .foregroundStyle(.secondary)
+        } else {
+            Button {
+                Task { await offline.download(song) }
+            } label: {
+                Image(systemName: "arrow.down.circle")
+                    .font(.system(size: size))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+}
+
+// MARK: - Favorite button
+
+/// Heart toggle for a track row. Pass `isFavorite` from the parent (which owns the
+/// snapshot of favorited IDs) and `onToggle` to persist the change.
+struct FavoriteButton: View {
+    let isFavorite: Bool
+    var onToggle: () -> Void
+    var size: CGFloat = 20
+
+    var body: some View {
+        Button(action: onToggle) {
+            Image(systemName: isFavorite ? "heart.fill" : "heart")
+                .font(.system(size: size))
+                .foregroundStyle(isFavorite ? Color.red : Color.secondary)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - Design tokens
 
 enum AppTheme {

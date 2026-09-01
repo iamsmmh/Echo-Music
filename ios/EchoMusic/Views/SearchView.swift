@@ -5,6 +5,7 @@ import SwiftUI
 struct SearchView: View {
     @EnvironmentObject private var env: AppEnvironment
     @StateObject private var viewModel: SearchViewModel
+    @State private var favoriteIDs: Set<String> = []
 
     init() {
         _viewModel = StateObject(wrappedValue: SearchViewModel(
@@ -19,6 +20,7 @@ struct SearchView: View {
             if trimmedQuery.isEmpty {
                 recentSearches
             } else {
+                filterChips
                 resultsList
             }
         }
@@ -26,6 +28,35 @@ struct SearchView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: PlaylistDestination.self) { destination in
             PlaylistView(browseId: destination.browseId)
+        }
+        .task { reloadFavorites() }
+    }
+
+    // MARK: - Filter chips
+
+    private var filterChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(SearchFilterKind.allCases) { kind in
+                    let isSelected = kind == viewModel.activeFilter
+                    Button {
+                        viewModel.setFilter(kind)
+                    } label: {
+                        Text(kind.title)
+                            .font(.subheadline.weight(isSelected ? .semibold : .regular))
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(
+                                isSelected ? Color.red : Color(.secondarySystemBackground),
+                                in: Capsule()
+                            )
+                            .foregroundStyle(isSelected ? Color.white : Color.primary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
         }
     }
 
@@ -111,9 +142,15 @@ struct SearchView: View {
         case .song(let song):
             let songs = self.songs(in: section)
             let index = songs.firstIndex(of: song) ?? 0
-            SongRowView(song: song) {
-                env.player.play(songs, startingAt: index)
-            }
+            SongRowView(
+                song: song,
+                onTap: {
+                    env.player.play(songs, startingAt: index)
+                },
+                offline: env.offline,
+                isFavorite: favoriteIDs.contains(song.id),
+                onToggleFavorite: { toggleFavorite($0) }
+            )
 
         case .playlist(let playlist):
             NavigationLink(value: PlaylistDestination(browseId: playlist.browseId)) {
@@ -151,6 +188,21 @@ struct SearchView: View {
 
     private var trimmedQuery: String {
         viewModel.query.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    // MARK: - Favorites
+
+    private func reloadFavorites() {
+        favoriteIDs = Set((try? env.database.favoriteSongs())?.map(\.videoId) ?? [])
+    }
+
+    private func toggleFavorite(_ song: Song) {
+        try? env.database.toggleFavorite(song)
+        if favoriteIDs.contains(song.id) {
+            favoriteIDs.remove(song.id)
+        } else {
+            favoriteIDs.insert(song.id)
+        }
     }
 }
 
